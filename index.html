@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>StreetStash</title>
+<title>StreetStash — Buy · Sell · Trade</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
@@ -19,11 +19,95 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;background:var(--white);color:var(--text);font-size:14px;line-height:1.5}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--white);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.5;
+  overflow-x:hidden;
+}
 img{display:block;max-width:100%}
 button{font-family:'Inter',sans-serif;cursor:pointer}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-thumb{background:var(--g3);border-radius:3px}
+
+/* ── ANIMATIONS ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes floatY{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+@keyframes softGlow{
+  0%,100%{box-shadow:0 0 0 rgba(58,138,49,0)}
+  50%{box-shadow:0 0 28px rgba(58,138,49,.12)}
+}
+@keyframes slideInRight{
+  from{opacity:0;transform:translateX(20px)}
+  to{opacity:1;transform:translateX(0)}
+}
+body.loaded .hero-left{
+  animation:fadeUp .8s ease both;
+}
+body.loaded .hero-stats .hero-stat{
+  animation:fadeUp .7s ease both, floatY 5s ease-in-out infinite;
+}
+body.loaded .hero-stats .hero-stat:nth-child(1){animation-delay:.08s,.08s}
+body.loaded .hero-stats .hero-stat:nth-child(2){animation-delay:.16s,.16s}
+body.loaded .hero-stats .hero-stat:nth-child(3){animation-delay:.24s,.24s}
+body.loaded .hero-actions .btn-primary,
+body.loaded .hero-actions .btn-outline{
+  animation:fadeUp .7s ease both;
+}
+body.loaded .hero-actions .btn-outline{animation-delay:.08s}
+body.loaded .shop-bar{
+  animation:fadeUp .45s ease both;
+}
+body.loaded nav{
+  animation:fadeIn .35s ease both;
+}
+.pcard{
+  will-change:transform,opacity;
+}
+.pcard.reveal{
+  animation:fadeUp .42s ease both;
+}
+.hero{
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:-40% -10% auto auto;
+  width:420px;
+  height:420px;
+  background:radial-gradient(circle, rgba(201,154,10,.12), transparent 65%);
+  pointer-events:none;
+  animation:softGlow 5.5s ease-in-out infinite;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:auto auto -120px -80px;
+  width:280px;
+  height:280px;
+  background:radial-gradient(circle, rgba(58,138,49,.12), transparent 68%);
+  pointer-events:none;
+  animation:floatY 7s ease-in-out infinite;
+}
+.hero-left,.hero-stats,.shop-bar,.grid,.modal,.cart-drawer{
+  position:relative;
+  z-index:1;
+}
 
 /* ── ANNOUNCEMENT ── */
 .announce{background:var(--black);color:rgba(255,255,255,.65);font-size:12px;text-align:center;padding:9px 20px;letter-spacing:.2px}
@@ -44,23 +128,24 @@ nav{
 .nav-cat{
   padding:6px 15px;border-radius:6px;white-space:nowrap;
   font-size:13px;font-weight:600;color:var(--g4);
-  background:none;border:none;transition:all .15s;
+  background:none;border:none;transition:all .15s, transform .15s;
 }
-.nav-cat:hover{background:var(--g1);color:var(--text)}
+.nav-cat:hover{background:var(--g1);color:var(--text);transform:translateY(-1px)}
 .nav-cat.active{background:var(--green-lt);color:var(--green)}
 .nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
 .cart-btn{
   display:flex;align-items:center;gap:8px;
   background:var(--green);color:white;border:none;
   border-radius:var(--r);padding:9px 18px;
-  font-size:13px;font-weight:700;transition:background .15s;
+  font-size:13px;font-weight:700;transition:background .15s, transform .15s;
 }
-.cart-btn:hover{background:var(--green-dk)}
+.cart-btn:hover{background:var(--green-dk);transform:translateY(-1px)}
 .cart-badge{
   background:var(--white);color:var(--black);border-radius:999px;
   font-size:11px;font-weight:800;padding:1px 7px;min-width:20px;text-align:center;
 }
-.hamburger{display:none;background:none;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:18px}
+.hamburger{display:none;background:none;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:18px;transition:transform .15s, background .15s}
+.hamburger:hover{background:var(--g1);transform:translateY(-1px)}
 
 /* ── HERO ── */
 .hero{
@@ -86,15 +171,15 @@ nav{
 .btn-primary{
   background:var(--green);color:white;border:none;
   border-radius:var(--r);padding:12px 26px;font-size:14px;font-weight:700;
-  transition:background .15s;
+  transition:background .15s, transform .15s, box-shadow .15s;
 }
-.btn-primary:hover{background:var(--green-dk)}
+.btn-primary:hover{background:var(--green-dk);transform:translateY(-1px);box-shadow:0 8px 20px rgba(58,138,49,.18)}
 .btn-outline{
   background:transparent;color:rgba(255,255,255,.65);
   border:1px solid rgba(255,255,255,.18);border-radius:var(--r);
-  padding:12px 26px;font-size:14px;font-weight:600;transition:all .15s;
+  padding:12px 26px;font-size:14px;font-weight:600;transition:all .15s, transform .15s;
 }
-.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px)}
 .hero-stats{display:flex;flex-direction:column;gap:12px;flex-shrink:0}
 .hero-stat{
   background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
@@ -116,9 +201,9 @@ nav{
 .search-inp{
   border:1px solid var(--border);border-radius:var(--r);
   padding:8px 14px;font-family:'Inter',sans-serif;font-size:13px;
-  background:var(--white);outline:none;width:210px;transition:border-color .15s;
+  background:var(--white);outline:none;width:210px;transition:border-color .15s, transform .15s;
 }
-.search-inp:focus{border-color:var(--green)}
+.search-inp:focus{border-color:var(--green);transform:translateY(-1px)}
 
 /* ── PRODUCT GRID ── */
 .grid{
@@ -129,9 +214,9 @@ nav{
 .pcard{
   background:var(--white);border:1px solid var(--border);
   border-radius:var(--r);overflow:hidden;cursor:pointer;
-  transition:box-shadow .2s,transform .2s;
+  transition:box-shadow .2s,transform .2s,border-color .2s;
 }
-.pcard:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.pcard:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:#d7d7d7}
 .pcard-img{width:100%;height:200px;overflow:hidden;background:var(--g1);position:relative}
 .pcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
 .pcard:hover .pcard-img img{transform:scale(1.04)}
@@ -153,9 +238,9 @@ nav{
 .pcard-price sub{font-size:10px;font-weight:600;color:var(--g4);vertical-align:super;margin-right:1px}
 .pcard-btn{
   background:var(--green);color:white;border:none;border-radius:6px;
-  padding:7px 14px;font-size:12px;font-weight:700;transition:background .15s;
+  padding:7px 14px;font-size:12px;font-weight:700;transition:background .15s, transform .15s;
 }
-.pcard-btn:hover{background:var(--green-dk)}
+.pcard-btn:hover{background:var(--green-dk);transform:translateY(-1px)}
 .pcard-btn.done{background:var(--g2);color:var(--g4);cursor:default}
 
 /* ── PRODUCT MODAL ── */
@@ -169,15 +254,16 @@ nav{
 .modal{
   background:white;border-radius:12px;
   max-width:780px;width:100%;max-height:90vh;overflow-y:auto;
-  transform:translateY(14px);transition:transform .25s;position:relative;
+  transform:translateY(14px) scale(.99);transition:transform .25s;position:relative;
 }
-.overlay.open .modal{transform:translateY(0)}
+.overlay.open .modal{transform:translateY(0) scale(1)}
 .modal-x{
   position:absolute;top:14px;right:14px;z-index:2;
   background:var(--g1);border:1px solid var(--border);border-radius:6px;
   width:32px;height:32px;font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:transform .15s, background .15s;
 }
-.modal-x:hover{background:var(--g2)}
+.modal-x:hover{background:var(--g2);transform:rotate(90deg)}
 .modal-grid{display:grid;grid-template-columns:1fr 1fr}
 .modal-imgbox{
   background:var(--g1);border-radius:12px 0 0 12px;overflow:hidden;
@@ -195,15 +281,15 @@ nav{
 .qty-row{display:flex;align-items:center;gap:12px;margin-top:20px}
 .qty-lbl{font-size:12px;font-weight:700;color:var(--g4);letter-spacing:.5px;text-transform:uppercase}
 .qty-ctrl{display:flex;align-items:center;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.qty-b{background:var(--g1);border:none;width:32px;height:32px;font-size:15px;font-weight:700;transition:background .1s}
-.qty-b:hover{background:var(--g2)}
+.qty-b{background:var(--g1);border:none;width:32px;height:32px;font-size:15px;font-weight:700;transition:background .1s, transform .1s}
+.qty-b:hover{background:var(--g2);transform:scale(1.03)}
 .qty-n{width:36px;text-align:center;font-size:14px;font-weight:700;border:none;outline:none;font-family:'Inter',sans-serif}
 .modal-add{
   margin-top:16px;width:100%;padding:13px;
   background:var(--green);color:white;border:none;border-radius:var(--r);
-  font-size:14px;font-weight:700;transition:background .15s;
+  font-size:14px;font-weight:700;transition:background .15s, transform .15s;
 }
-.modal-add:hover{background:var(--green-dk)}
+.modal-add:hover{background:var(--green-dk);transform:translateY(-1px)}
 
 /* ── CART DRAWER ── */
 .cart-ov{
@@ -225,7 +311,8 @@ nav{
   display:flex;align-items:center;justify-content:space-between;
 }
 .cart-hd h2{font-size:16px;font-weight:800}
-.cart-hd-x{background:var(--g1);border:1px solid var(--border);border-radius:6px;width:30px;height:30px;font-size:15px}
+.cart-hd-x{background:var(--g1);border:1px solid var(--border);border-radius:6px;width:30px;height:30px;font-size:15px;transition:transform .15s, background .15s}
+.cart-hd-x:hover{background:var(--g2);transform:rotate(90deg)}
 .cart-list{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px}
 .cart-empty-st{
   flex:1;display:flex;flex-direction:column;
@@ -237,6 +324,7 @@ nav{
   display:flex;gap:11px;align-items:flex-start;
   padding:11px;border:1px solid var(--border);border-radius:var(--r);
   background:var(--g1);
+  animation:fadeUp .28s ease both;
 }
 .ci-img{
   width:54px;height:54px;border-radius:6px;overflow:hidden;
@@ -253,8 +341,8 @@ nav{
 .ciq{background:none;border:none;width:25px;height:25px;font-size:13px;font-weight:700;color:var(--g4)}
 .ciq:hover{background:var(--g2);color:var(--text)}
 .ciq-v{width:26px;text-align:center;font-size:13px;font-weight:700}
-.ci-del{background:none;border:none;color:var(--g3);font-size:15px;padding:2px 4px;transition:color .15s}
-.ci-del:hover{color:#e53935}
+.ci-del{background:none;border:none;color:var(--g3);font-size:15px;padding:2px 4px;transition:color .15s, transform .15s}
+.ci-del:hover{color:#e53935;transform:scale(1.08)}
 .cart-ft{padding:16px 22px;border-top:1px solid var(--border);background:white}
 .cart-smry{margin-bottom:14px}
 .smry-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:var(--g4)}
@@ -264,9 +352,9 @@ nav{
   background:#25d366;color:white;
   font-size:15px;font-weight:700;letter-spacing:.2px;
   display:flex;align-items:center;justify-content:center;gap:10px;
-  transition:background .15s;
+  transition:background .15s, transform .15s;
 }
-.wa-btn:hover{background:#1ebe5a}
+.wa-btn:hover{background:#1ebe5a;transform:translateY(-1px)}
 .cart-note{font-size:11px;color:var(--g4);text-align:center;margin-top:9px}
 
 /* ── STATES ── */
@@ -275,7 +363,6 @@ nav{
   align-items:center;justify-content:center;padding:80px 20px;gap:12px;color:var(--g4);
 }
 .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── TOAST ── */
 #toast{
@@ -328,7 +415,6 @@ footer{
 
 <div id="toast"></div>
 
-
 <!-- NAVBAR -->
 <nav>
   <div class="nav-brand" onclick="window.scrollTo({top:0,behavior:'smooth'})">
@@ -354,7 +440,6 @@ footer{
       <button class="btn-primary" onclick="document.getElementById('shopWrap').scrollIntoView({behavior:'smooth'})">Shop Now</button>
     </div>
   </div>
-  
 </section>
 
 <!-- SHOP -->
@@ -423,13 +508,12 @@ footer{
 <footer>
   <div class="ft-inner">
     <div>
-<img src="pub.png" alt="StreetStash" style="height: 120px; width: auto; object-fit: contain; margin-bottom: -8px;">
+      <img src="pub.png" alt="StreetStash" style="height: 120px; width: auto; object-fit: contain; margin-bottom: -8px;">
     </div>
     <div style="font-size:13px;line-height:2.2">
       <div>Qatar</div>
       <div>WhatsApp orders available 24/7</div>
     </div>
-    
   </div>
   <div class="ft-copy">© 2025 StreetStash. All rights reserved.</div>
 </footer>
@@ -449,6 +533,10 @@ let db = null;
 let products = [], cats = [], active = 'all', q = '';
 let cart = JSON.parse(localStorage.getItem('ss_cart') || '[]');
 let cur = null; // current product in modal
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add('loaded');
+});
 
 function initDB() {
   try {
@@ -499,13 +587,19 @@ function renderGrid() {
   document.getElementById('shopTitle').textContent = active==='all' ? 'All Products' : (cat?.name||'Products');
   document.getElementById('shopCnt').textContent = list.length + ' item' + (list.length!==1?'s':'');
   if (!list.length) { g.innerHTML=`<div class="state-wrap"><span style="font-size:38px">🔍</span><p>No products found</p></div>`; return; }
-  g.innerHTML = list.map(p=>cardHTML(p)).join('');
+  g.innerHTML = list.map((p, i)=>cardHTML(p, i)).join('');
+  requestAnimationFrame(() => {
+    g.querySelectorAll('.pcard').forEach((el, i) => {
+      el.style.animationDelay = `${i * 35}ms`;
+      el.classList.add('reveal');
+    });
+  });
 }
 
-function cardHTML(p) {
+function cardHTML(p, index = 0) {
   const c = p.categories||{};
   const inCart = cart.some(i=>i.id===p.id);
-  return `<div class="pcard" onclick="openP('${p.id}')">
+  return `<div class="pcard" style="animation-delay:${index * 35}ms" onclick="openP('${p.id}')">
     <div class="pcard-img">
       ${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"/>`:`<div class="pcard-ph">${c.icon||'🏷️'}</div>`}
       <div class="pcard-tag">${c.name||''}</div>
